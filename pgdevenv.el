@@ -98,7 +98,6 @@
 
 (defun pgdev-duplicate-path (p1 p2)
   "Trick duplicate test into pruning path to different prefixes"
-  (unless (bound-and-true-p all-pgbins)
   ;; now the comparison
   (or (string= p1 p2)
       (and (string= p1 pgbin) (member p2 all-pgbins))
