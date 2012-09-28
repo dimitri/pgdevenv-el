@@ -7,7 +7,8 @@ them.
 This facility allows you to have shortcuts to easily use your own PostgreSQL
 environments when working on the source code. It will define the `PGPORT`,
 `PGDATA` and `PATH` for you, and also `CC` while at it, in a newly opened
-`M-x shell` session.
+`M-x shell` session. It's made to easily manage a separate `M-x shell`
+session per branch you're working on.
 
 The main interest is that this tool will then bind some keys to type in
 repeatitive stanzas automatically so that you don't have to, including
