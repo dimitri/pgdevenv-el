@@ -23,12 +23,12 @@ Main shortcut:
 
 Extra shortcuts available from the special shell:
 
-    C-c - C		pgdev-insert-clone
-    C-c - D		pgdev-debug-this-psql
-    C-c - c		pgdev-insert-configure
-    C-c - d		pgdev-debug
     C-c - g		pgdev-insert-git-clone
+    C-c - c		pgdev-insert-configure
     C-c - s		pgdev-insert-pgctl-start
+    C-c - r     pgdev-install-and-restart
+    C-c - D		pgdev-debug-this-psql
+    C-c - d		pgdev-debug
 
 ## Setup
 

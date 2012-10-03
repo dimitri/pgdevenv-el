@@ -148,8 +148,9 @@
 	  (define-key shell-mode-map (kbd "C-c - c") 'pgdev-insert-configure)
 	  (define-key shell-mode-map (kbd "C-c - g") 'pgdev-insert-git-clone)
 	  (define-key shell-mode-map (kbd "C-c - s") 'pgdev-insert-pgctl-start)
-	  (define-key shell-mode-map (kbd "C-c - d") 'pgdev-debug)
-	  (define-key shell-mode-map (kbd "C-c - D") 'pgdev-debug-this-psql)
+	  (define-key shell-mode-map (kbd "C-c - r") 'pgdev-install-and-restart)
+	  (define-key shell-mode-map (kbd "C-c - D") 'pgdev-debug)
+	  (define-key shell-mode-map (kbd "C-c - d") 'pgdev-debug-this-psql)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
@@ -180,8 +181,6 @@
 	   pgdev-current-git-branch
 	   pgdev-current-clone-root)))
 
-;; make, make check, make install etc won't need any argument. Same with
-;; psql and initdb, thanks to ENVIRON.
 ;;;###autoload
 (defun pgdev-insert-configure ()
   "Insert the ./configure command in the current Shell buffer"
@@ -192,8 +191,6 @@
 			     pgdev-configure-option-list)
 		     " ")))
 
-;; we only have start because thanks to the ENVIRON pg_ctl stop and pg_ctl
-;; restart need no argument
 ;;;###autoload
 (defun pgdev-insert-pgctl-start ()
   "Insert pg_ctl -l <logfile> start"
@@ -201,6 +198,13 @@
   (insert (format "pg_ctl -l %s/pgsql-%s.log start"
 		  pgdev-logfile-root
 		  pgdev-current-branch)))
+
+;;;###autoload
+(defun pgdev-install-and-restart ()
+  "send input `make install && pg_ctl restart`"
+  (interactive)
+  (insert "make install && pg_ctl restart")
+  (comint-send-input nil t))
 
 ;;;###autoload
 (defun pgdev-debug ()
@@ -214,16 +218,23 @@
 (defun pgdev-debug-this-psql ()
   "Must be run while psql is already running in a pgdev shell"
   (interactive)
-  (insert "select pg_backend_pid();") (comint-send-input nil t)
+  (insert "select pg_backend_pid();")
+  (comint-send-input nil t)
   (sleep-for 1)				; wait our answer
-  (let ((pid (save-excursion
-	       (goto-char (point-max))
-	       (re-search-backward " \\([0-9]\\{3,\\}\\)")
-	       (match-string 1))))
-    (select-window (split-window))
-    (shell (format "*Shell: Debug PostgreSQL %s*" pgdev-current-branch))
-    (insert (format "%s -p %s" pgdev-gdb-path pid))
-    (comint-send-input)))
+  (let* ((pid   (save-excursion
+		  (goto-char (point-max))
+		  (re-search-backward " \\([0-9]\\{3,\\}\\)")
+		  (match-string 1)))
+	 (bname (format "*Shell: Debug PostgreSQL %s*" pgdev-current-branch))
+	 (buf   (get-buffer-create bname))
+	 (win   (get-buffer-window buf)))
+    (if win
+	(select-window win)
+      (select-window (split-window))
+      (shell bname))
+    (with-current-buffer buf
+      (insert (format "%s -p %s" pgdev-gdb-path pid))
+      (comint-send-input nil t))))
 
 ;; finally, our entry point
 
