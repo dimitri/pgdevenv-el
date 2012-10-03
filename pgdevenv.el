@@ -137,11 +137,14 @@
 	     (default-directory (file-name-as-directory bwd)))
 	;; create the target branch working directory if necessary
 	(unless (file-directory-p bwd) (mkdir bwd 'parents))
+
 	;; Set the Environment prior to starting the shell
+	(setenv "PAGER" "/bin/cat")
 	(setenv "PGDATA" (expand-file-name "data" cwd))
 	(setenv "PGPORT" port)
 	(setenv "CC" (format "%s %s" pgdev-ccache-path pgdev-cc-path))
 	(pgdev-set-path branch)
+
 	;; now start the shell, then set some buffer-local variables
 	(with-current-buffer (shell buf)
 	  ;; add some keymap entries
