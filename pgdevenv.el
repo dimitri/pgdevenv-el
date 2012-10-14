@@ -32,6 +32,7 @@
 (defcustom pgdev-configure-option-list
   '("--enable-cassert"
     "--enable-debug"
+    "--enable-depend"
     "--with-perl"
     "--with-python"
     "--with-tcl")
@@ -154,6 +155,7 @@
 	  (define-key shell-mode-map (kbd "C-c - r") 'pgdev-install-and-restart)
 	  (define-key shell-mode-map (kbd "C-c - D") 'pgdev-debug)
 	  (define-key shell-mode-map (kbd "C-c - d") 'pgdev-debug-this-psql)
+	  (define-key shell-mode-map (kbd "C-c - f") 'pgdev-edit-config)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
@@ -223,7 +225,7 @@
   (interactive)
   (insert "select pg_backend_pid();")
   (comint-send-input nil t)
-  (sleep-for 1)				; wait our answer
+  (sit-for 2)				; wait our answer
   (let* ((pid   (save-excursion
 		  (goto-char (point-max))
 		  (re-search-backward " \\([0-9]\\{3,\\}\\)")
@@ -236,8 +238,17 @@
       (select-window (split-window))
       (shell bname))
     (with-current-buffer buf
+      (toggle-truncate-lines 1)
       (insert (format "%s -p %s" pgdev-gdb-path pid))
       (comint-send-input nil t))))
+
+;;;###autoload
+(defun pgdev-edit-config ()
+  "Must be run from a pgdev shell, visit the postgresql.conf file"
+  (interactive)
+  (find-file
+   (expand-file-name "postgresql.conf"
+    (file-name-as-directory (expand-file-name "data" pgdev-current-prefix)))))
 
 ;; finally, our entry point
 
