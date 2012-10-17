@@ -129,19 +129,23 @@
 (defun pgdev-open-shell (branch)
   "Open a shell for given branch"
   (interactive (list (pgdev-read-branch-name)))
-  (let* ((cwd  (expand-file-name branch pgdev-install-root))
-	 (buf  (format "*Shell: PostgreSQL %s*" branch)))
+  (let* ((cwd    (expand-file-name branch pgdev-install-root))
+	 (pgdata (expand-file-name "data" cwd))
+	 (buf    (format "*Shell: PostgreSQL %s*" branch)))
+
     (destructuring-bind (branch dir git-branch port url)
 	(pgdev-get-full-details branch)
+
       ;; branch working directory
       (let* ((bwd (expand-file-name dir pgdev-clone-root))
 	     (default-directory (file-name-as-directory bwd)))
+
 	;; create the target branch working directory if necessary
 	(unless (file-directory-p bwd) (mkdir bwd 'parents))
 
 	;; Set the Environment prior to starting the shell
 	(setenv "PAGER" "/bin/cat")
-	(setenv "PGDATA" (expand-file-name "data" cwd))
+	(setenv "PGDATA" pgdata)
 	(setenv "PGPORT" port)
 	(setenv "CC" (format "%s %s" pgdev-ccache-path pgdev-cc-path))
 	(pgdev-set-path branch)
@@ -152,20 +156,25 @@
 	  (define-key shell-mode-map (kbd "C-c - c") 'pgdev-insert-configure)
 	  (define-key shell-mode-map (kbd "C-c - g") 'pgdev-insert-git-clone)
 	  (define-key shell-mode-map (kbd "C-c - s") 'pgdev-insert-pgctl-start)
+	  (define-key shell-mode-map (kbd "C-c - S") 'pgdev-insert-pgctl-stop)
 	  (define-key shell-mode-map (kbd "C-c - r") 'pgdev-install-and-restart)
+	  (define-key shell-mode-map (kbd "C-c - R") 'pgdev-reinitdb)
 	  (define-key shell-mode-map (kbd "C-c - D") 'pgdev-debug)
 	  (define-key shell-mode-map (kbd "C-c - d") 'pgdev-debug-this-psql)
 	  (define-key shell-mode-map (kbd "C-c - f") 'pgdev-edit-config)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
+		(pgdev-current-pgdata pgdata)
 		(pgdev-current-clone-root
 		 (expand-file-name dir pgdev-clone-root))
 		(pgdev-current-branch branch)
 		(pgdev-current-git-branch git-branch)
 		(pgdev-current-port port)
 		(pgdev-current-url url))
+
 	    (make-local-variable 'pgdev-current-prefix)
+	    (make-local-variable 'pgdev-current-pgdata)
 	    (make-local-variable 'pgdev-current-clone-root)
 	    (make-local-variable 'pgdev-current-branch)
 	    (make-local-variable 'pgdev-current-git-branch)
@@ -198,11 +207,27 @@
 
 ;;;###autoload
 (defun pgdev-insert-pgctl-start ()
-  "Insert pg_ctl -l <logfile> start"
+  "Insert and execute pg_ctl -l <logfile> start"
   (interactive)
   (insert (format "pg_ctl -l %s/pgsql-%s.log start"
 		  pgdev-logfile-root
-		  pgdev-current-branch)))
+		  pgdev-current-branch))
+  (comint-send-input nil t))
+
+;;;###autoload
+(defun pgdev-insert-pgctl-stop ()
+  "Execute pg_ctl stop"
+  (interactive)
+  (insert "pg_ctl stop")
+  (comint-send-input nil t))
+
+;;;###autoload
+(defun pgdev-reinitdb ()
+  "Execute rm -rf $PGDATA && initdb && createdb `whoami`"
+  (interactive)
+  (insert (format "rm -rf \"%s\" && initdb && createdb %s"
+		  pgdev-current-pgdata (user-login-name)))
+  (comint-send-input nil t))
 
 ;;;###autoload
 (defun pgdev-install-and-restart ()
