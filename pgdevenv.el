@@ -21,7 +21,7 @@
   "Local path leading to `gcc' or your other favorite C compiler"
   :group 'pgdev)
 
-(defcustom pgdev-ccache-path "/sw/bin/ccache"
+(defcustom pgdev-ccache-path "/usr/bin/ccache"
   "Local path leading to `ccache'"
   :group 'pgdev)
 
