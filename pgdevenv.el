@@ -288,6 +288,10 @@
 ;;
 
 ;;;###autoload
+(defvar *pgdev-sql-end-of-query-rx* '(or ";" (and "\\" "."))))
+(defvar *pgdev-sql-end-of-query-re* (rx (eval *pgdev-sql-end-of-query-rx*)))
+
+;;;###autoload
 (defvar *pgdev-sql-commands*
   '("ABORT"
     "ALTER AGGREGATE"
@@ -485,29 +489,32 @@
   (interactive)
   ;; when already looking-at the beginning of a query, move backward one
   ;; char before the previous semicolon
-  (when (looking-at (regexp-opt *pgdev-sql-commands*))
-    (re-search-backward (rx (or buffer-start ";"))))
+  (when (or (looking-at (regexp-opt *pgdev-sql-commands*))
+	    (looking-at (rx buffer-end)))
+    (re-search-backward (rx (or buffer-start
+				(eval *pgdev-sql-end-of-query-rx*)))))
   ;; now the real search
   (let ((current-func (pgdev-current-func)))
     (if current-func
 	(goto-char (first current-func))
       ;; not editing a function
-      (re-search-backward (rx (or buffer-start ";")))
-      (when (looking-at ";") (forward-char)) ; skip the semicolon itself
-      (while
-	  ;; skip blanks and comments
-	  (or
-	   (while (looking-at (rx (or (any blank space) eol)))
-	     (forward-char))
-	   (while (looking-at (rx "--" (* not-newline) eol))
-	     (forward-line))))
+      (re-search-backward (rx (or buffer-start
+				  (eval *pgdev-sql-end-of-query-rx*))))
+      (when (looking-at *pgdev-sql-end-of-query-re*)
+	(goto-char (match-end 0))) ; skip the semicolon itself
+      ;; skip blanks and comments
+      (while (looking-at (rx (or (any blank space) eol "--")))
+	(while (looking-at (rx (or (any blank space) eol)))
+	  (forward-char))
+	(while (looking-at (rx "--" (* not-newline) eol))
+	  (forward-line)))
       (unless (looking-at (regexp-opt *pgdev-sql-commands*))
 	(error "Couldn't find beginning of current SQL query.")))))
 
 ;;;###autoload
 (defun pgdev-end-of-query (&optional arg)
   "Move forward to the end of a top level query."
-  ;; take care of semicolons embedded in a literal
+  ;; TODO: take care of semicolons embedded in a literal
   (interactive)
   (let ((current-func (pgdev-current-func)))
     (if current-func
@@ -515,7 +522,7 @@
       ;; not a function, usual simpler rules
       (pgdev-beginning-of-query)
       (let* ((begin (point)))
-	(re-search-forward ";" nil t)))))
+	(re-search-forward *pgdev-sql-end-of-query-re* nil t)))))
 
 ;;;###autoload
 (defun pgdev-mark-query ()
