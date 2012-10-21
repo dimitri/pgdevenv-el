@@ -482,17 +482,20 @@
 	(list prev-create-function terminal-semicolon)))))
 
 ;;;###autoload
-(defun pgdev-beginning-of-query ()
+(defun pgdev-beginning-of-query (&optional dontmove)
   "Move backward to the beginning of a query."
   ;; first search of a create function as that could embed about any other
   ;; SQL command (see PLpgSQL), then look at other cases.
   (interactive)
+
   ;; when already looking-at the beginning of a query, move backward one
   ;; char before the previous semicolon
-  (when (or (looking-at (regexp-opt *pgdev-sql-commands*))
-	    (looking-at (rx buffer-end)))
+  (when (and (not dontmove)
+	     (or (looking-at (regexp-opt *pgdev-sql-commands*))
+		 (looking-at (rx buffer-end))))
     (re-search-backward (rx (or buffer-start
 				(eval *pgdev-sql-end-of-query-rx*)))))
+
   ;; now the real search
   (let ((current-func (pgdev-current-func)))
     (if current-func
@@ -520,7 +523,7 @@
     (if current-func
 	(goto-char (second current-func))
       ;; not a function, usual simpler rules
-      (pgdev-beginning-of-query)
+      (pgdev-beginning-of-query 'dontmove)
       (let* ((begin (point)))
 	(re-search-forward *pgdev-sql-end-of-query-re* nil t)))))
 
