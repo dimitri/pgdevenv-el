@@ -74,10 +74,11 @@
   :group 'pgdev)
 
 ;;;###autoload
-(define-prefix-command 'pgdev-map)
-(global-set-key (kbd "C-c -") 'pgdev-map)
-(define-key pgdev-map (kbd "n") 'pgdev-open-shell) ; new shell
-(define-key pgdev-map (kbd "-") 'pgdev-open-shell) ; new shell
+(progn
+  (define-prefix-command 'pgdev-map)
+  (global-set-key (kbd "C-c -") 'pgdev-map)
+  (define-key pgdev-map (kbd "n") 'pgdev-open-shell) ; n is for new (shell)
+  (define-key pgdev-map (kbd "-") 'pgdev-open-shell))
 
 ;;
 ;; Basics, must have
