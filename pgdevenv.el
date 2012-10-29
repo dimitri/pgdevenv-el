@@ -289,7 +289,7 @@
 ;;
 
 ;;;###autoload
-(defvar *pgdev-sql-end-of-query-rx* '(or ";" (and "\\" "."))))
+(defvar *pgdev-sql-end-of-query-rx* '(or ";" (and "\\" ".")))
 (defvar *pgdev-sql-end-of-query-re* (rx (eval *pgdev-sql-end-of-query-rx*)))
 
 ;;;###autoload
