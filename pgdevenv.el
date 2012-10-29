@@ -73,6 +73,12 @@
   "NAME DIRECTORY TAG PORT"
   :group 'pgdev)
 
+;;;###autoload
+(define-prefix-command 'pgdev-map)
+(global-set-key (kbd "C-c -") 'pgdev-map)
+(define-key pgdev-map (kbd "n") 'pgdev-open-shell) ; new shell
+(define-key pgdev-map (kbd "-") 'pgdev-open-shell) ; new shell
+
 ;;
 ;; Basics, must have
 ;;
@@ -153,15 +159,15 @@
 	;; now start the shell, then set some buffer-local variables
 	(with-current-buffer (shell buf)
 	  ;; add some keymap entries
-	  (define-key shell-mode-map (kbd "C-c - c") 'pgdev-insert-configure)
-	  (define-key shell-mode-map (kbd "C-c - g") 'pgdev-insert-git-clone)
-	  (define-key shell-mode-map (kbd "C-c - s") 'pgdev-insert-pgctl-start)
-	  (define-key shell-mode-map (kbd "C-c - S") 'pgdev-insert-pgctl-stop)
-	  (define-key shell-mode-map (kbd "C-c - r") 'pgdev-install-and-restart)
-	  (define-key shell-mode-map (kbd "C-c - R") 'pgdev-reinitdb)
-	  (define-key shell-mode-map (kbd "C-c - D") 'pgdev-debug)
-	  (define-key shell-mode-map (kbd "C-c - d") 'pgdev-debug-this-psql)
-	  (define-key shell-mode-map (kbd "C-c - f") 'pgdev-edit-config)
+	  (define-key pgdev-map (kbd "c") 'pgdev-insert-configure)
+	  (define-key pgdev-map (kbd "g") 'pgdev-insert-git-clone)
+	  (define-key pgdev-map (kbd "s") 'pgdev-insert-pgctl-start)
+	  (define-key pgdev-map (kbd "S") 'pgdev-insert-pgctl-stop)
+	  (define-key pgdev-map (kbd "r") 'pgdev-install-and-restart)
+	  (define-key pgdev-map (kbd "R") 'pgdev-reinitdb)
+	  (define-key pgdev-map (kbd "D") 'pgdev-debug)
+	  (define-key pgdev-map (kbd "d") 'pgdev-debug-this-psql)
+	  (define-key pgdev-map (kbd "f") 'pgdev-edit-config)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
@@ -274,11 +280,6 @@
   (find-file
    (expand-file-name "postgresql.conf"
     (file-name-as-directory (expand-file-name "data" pgdev-current-prefix)))))
-
-;; finally, our entry point
-
-;;;###autoload
-(global-set-key (kbd "C-c - n") 'pgdev-open-shell)
 
 ;;
 ;; Some editing help, in a pgdev-sql minor mode
