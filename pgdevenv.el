@@ -533,7 +533,7 @@
 (defun pgdev-mark-query ()
   "Put mark at end of the current SQL query and point at beginning"
   (interactive)
-  (pgdev-beginning-of-query)
+  (pgdev-beginning-of-query 'dontmove)
   (push-mark (point))
   (pgdev-end-of-query)
   (exchange-point-and-mark))
@@ -551,16 +551,17 @@
 (defun pgdev-eval-query (&optional branch)
   "Evaluate PostgreSQL query at point in target psql buffer"
   (interactive)
-  (let* ((branch (or *pgdev-eval-last-branch*
-		     (pgdev-read-branch-name)))
-	 (buf    (format "*Shell: PostgreSQL %s*" branch))
-	 (dummy  (pgdev-mark-query))
-	 (query  (buffer-substring-no-properties (region-beginning)
-						 (region-end))))
-    (with-current-buffer buf
-      (setq *pgdev-eval-last-branch* branch)
-      (insert (format "%s" query))
-      (comint-send-input nil t))))
+  (save-excursion
+    (let* ((branch (or *pgdev-eval-last-branch*
+		       (pgdev-read-branch-name)))
+	   (buf    (format "*Shell: PostgreSQL %s*" branch))
+	   (dummy  (pgdev-mark-query))
+	   (query  (buffer-substring-no-properties (region-beginning)
+						   (region-end))))
+      (with-current-buffer buf
+	(setq *pgdev-eval-last-branch* branch)
+	(insert (format "%s" query))
+	(comint-send-input nil t)))))
 
 ;;;###autoload
 (defvar pgdev-sql-mode-map
