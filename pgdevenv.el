@@ -557,10 +557,14 @@
 	   (buf    (format "*Shell: PostgreSQL %s*" branch))
 	   (dummy  (pgdev-mark-query))
 	   (query  (buffer-substring-no-properties (region-beginning)
-						   (region-end))))
+						   (region-end)))
+	   (query-no-tabs (with-temp-buffer
+			    (insert query)
+			    (untabify (point-min) (point-max))
+			    (buffer-string))))
       (with-current-buffer buf
 	(setq *pgdev-eval-last-branch* branch)
-	(insert (format "%s" query))
+	(insert (format "%s" query-no-tabs))
 	(comint-send-input nil t)))))
 
 ;;;###autoload
