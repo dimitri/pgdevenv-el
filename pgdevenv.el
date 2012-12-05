@@ -29,6 +29,10 @@
   "Local path leading to `gdb'"
   :group 'pgdev)
 
+(defcustom pgdev-make-extra-options "-j 4"
+  "Extra options to give make for"
+  :group 'pgdev)
+
 (defcustom pgdev-configure-option-list
   '("--enable-cassert"
     "--enable-debug"
@@ -169,6 +173,7 @@
 	  (define-key pgdev-map (kbd "D") 'pgdev-debug)
 	  (define-key pgdev-map (kbd "d") 'pgdev-debug-this-psql)
 	  (define-key pgdev-map (kbd "f") 'pgdev-edit-config)
+	  (define-key pgdev-map (kbd "m") 'pgdev-maintainer-clean-rebuild)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
@@ -188,6 +193,12 @@
 	    (make-local-variable 'pgdev-current-port)
 	    (make-local-variable 'pgdev-current-url)))))))
 
+;;;###autoload
+(defun pgdev-insert-send-input (string &rest args)
+  "Insert format string filled with args and `coming-send-input'"
+  (insert (apply 'format string args))
+  (comint-send-input nil t))
+
 ;;
 ;; Auto type some commands where parts are depending on the current branch
 ;; we're working in
@@ -203,14 +214,19 @@
 	   pgdev-current-clone-root)))
 
 ;;;###autoload
+(defun pgdev-configure-string ()
+  "return the configure command string"
+  (mapconcat 'identity
+	     (append (list "./configure"
+			   "--prefix" pgdev-current-prefix)
+		     pgdev-configure-option-list)
+	     " "))
+
+;;;###autoload
 (defun pgdev-insert-configure ()
   "Insert the ./configure command in the current Shell buffer"
   (interactive)
-  (insert (mapconcat 'identity
-		     (append (list "./configure"
-				   "--prefix" pgdev-current-prefix)
-			     pgdev-configure-option-list)
-		     " ")))
+  (insert (pgdev-configure-string)))
 
 ;;;###autoload
 (defun pgdev-insert-pgctl-start ()
@@ -230,17 +246,33 @@
 
 ;;;###autoload
 (defun pgdev-reinitdb ()
-  "Execute rm -rf $PGDATA && initdb && createdb `whoami`"
+  "Execute rm -rf $PGDATA && initdb"
   (interactive)
-  (insert (format "rm -rf \"%s\" && initdb && createdb %s"
-		  pgdev-current-pgdata (user-login-name)))
+  (insert (format "rm -rf \"%s\" && initdb" pgdev-current-pgdata))
+  (comint-send-input nil t)
+  (pgdev-insert-pgctl-start)
+  (insert (format "sleep 2 && createdb %s" (user-login-name)))
   (comint-send-input nil t))
 
 ;;;###autoload
 (defun pgdev-install-and-restart ()
   "send input `make install && pg_ctl restart`"
   (interactive)
-  (insert "make install && pg_ctl restart")
+  (insert (format "make %s install && pg_ctl restart" pgdev-make-extra-options))
+  (comint-send-input nil t))
+
+;;;###autoload
+(defun pgdev-maintainer-clean-rebuild ()
+  "Execute make maintaner-clean && ./configure && make install"
+  (interactive)
+  (pgdev-insert-send-input
+   (concat (format "rm -rf \"%s\"" pgdev-current-pgdata)
+	   " && "
+	   "make maintainer-clean"
+	   " && "
+	   (pgdev-configure-string)
+	   " && "
+	   (format "make %s install" pgdev-make-extra-options)))
   (comint-send-input nil t))
 
 ;;;###autoload

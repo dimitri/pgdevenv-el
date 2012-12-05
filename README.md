@@ -30,6 +30,7 @@ Extra shortcuts available from the special shell:
     C-c - S		pgdev-insert-pgctl-stop
     C-c - r     pgdev-install-and-restart
     C-c - R		pgdev-reinitdb
+    C-c - m		pgdev-maintainer-clean-rebuild
     C-c - d		pgdev-debug-this-psql
     C-c - D		pgdev-debug
 
@@ -38,27 +39,33 @@ Extra shortcuts available from the special shell:
 The main thing you want to review adapt are those couple of *custom*
 variables:
 
-    (defcustom pgdev-clone-root "~/dev/PostgreSQL"
-      "Top directory where to git clone the PostgreSQL development branches"
-      :group 'pgdev)
-    
-    (defcustom pgdev-install-root "~/pgsql"
-      "Top directory where to git clone the PostgreSQL development branches"
-      :group 'pgdev)
-    
-    (defcustom pgdev-my-branches
-          '(("ddl" "postgres" "master" "54393"))
-      "Deveopper owned branches"
-      :group 'pgdev)
-    
-    (defcustom pgdev-pg-branches
-      '(("9.2" "pg9.2" "REL9_2_STABLE" "54392")
-        ("9.1" "pg9.1" "REL9_1_STABLE" "54391")
-        ("9.0" "pg9.0" "REL9_0_STABLE" "54390")
-        ("8.4" "pg8.4" "REL8_4_STABLE" "54384")
-        ("8.3" "pg8.3" "REL8_3_STABLE" "54383"))
-      "NAME DIRECTORY TAG PORT"
-      :group 'pgdev)
+~~~lisp
+(defcustom pgdev-clone-root "~/dev/PostgreSQL"
+  "Top directory where to git clone the PostgreSQL development branches"
+  :group 'pgdev)
+
+(defcustom pgdev-install-root "~/pgsql"
+  "Top directory where to git clone the PostgreSQL development branches"
+  :group 'pgdev)
+
+(defcustom pgdev-my-branches
+      '(("ddl" "postgres" "master" "54393"))
+  "Deveopper owned branches"
+  :group 'pgdev)
+
+(defcustom pgdev-pg-branches
+  '(("9.2" "pg9.2" "REL9_2_STABLE" "54392")
+    ("9.1" "pg9.1" "REL9_1_STABLE" "54391")
+    ("9.0" "pg9.0" "REL9_0_STABLE" "54390")
+    ("8.4" "pg8.4" "REL8_4_STABLE" "54384")
+    ("8.3" "pg8.3" "REL8_3_STABLE" "54383"))
+  "NAME DIRECTORY TAG PORT"
+  :group 'pgdev)
+
+(defcustom pgdev-make-extra-options "-j 4"
+  "Extra options to give make for"
+  :group 'pgdev)
+~~~
 
 As you can see the facility targets PostgreSQL developpers having their own
 private fork where they develop features in so called *git feature
@@ -67,13 +74,15 @@ branch*, while fixing a bug typically.
 
 You might be also interrested into changing those:
 
-    (defcustom pgdev-my-git-url "https://github.com/dimitri/postgres.git"
-      "URL of the your own repository"
-      :group 'pgdev)
-    
-    (defcustom pgdev-pg-git-url "git://git.postgresql.org/git/postgresql.git"
-      "URL of the PostgreSQL upstream repository (or your mirror of it)"
-      :group 'pgdev)
+~~~lisp
+(defcustom pgdev-my-git-url "https://github.com/dimitri/postgres.git"
+  "URL of the your own repository"
+  :group 'pgdev)
+
+(defcustom pgdev-pg-git-url "git://git.postgresql.org/git/postgresql.git"
+  "URL of the PostgreSQL upstream repository (or your mirror of it)"
+  :group 'pgdev)
+~~~
 
 As you can see the default `pgdev-my-git-url` setting might not work for you...
 
