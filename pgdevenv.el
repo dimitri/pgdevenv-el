@@ -173,7 +173,8 @@
 	  (define-key pgdev-map (kbd "D") 'pgdev-debug)
 	  (define-key pgdev-map (kbd "d") 'pgdev-debug-this-psql)
 	  (define-key pgdev-map (kbd "f") 'pgdev-edit-config)
-	  (define-key pgdev-map (kbd "m") 'pgdev-maintainer-clean-rebuild)
+	  (define-key pgdev-map (kbd "m") 'pgdev-make)
+	  (define-key pgdev-map (kbd "M") 'pgdev-maintainer-clean-rebuild)
 
 	  ;; make local buffer variables to ease coding the keymap entries
 	  (let ((pgdev-current-prefix cwd)
@@ -243,6 +244,12 @@
   (interactive)
   (insert "pg_ctl stop")
   (comint-send-input nil t))
+
+;;;###autoload
+(defun pgdev-make ()
+  "Execute make with `pgdev-make-extra-options'"
+  (interactive)
+  (pgdev-insert-send-input "make %s" pgdev-make-extra-options))
 
 ;;;###autoload
 (defun pgdev-reinitdb ()

@@ -30,7 +30,8 @@ Extra shortcuts available from the special shell:
     C-c - S		pgdev-insert-pgctl-stop
     C-c - r     pgdev-install-and-restart
     C-c - R		pgdev-reinitdb
-    C-c - m		pgdev-maintainer-clean-rebuild
+    C-c - m		pgdev-make
+    C-c - M		pgdev-maintainer-clean-rebuild
     C-c - d		pgdev-debug-this-psql
     C-c - D		pgdev-debug
 
