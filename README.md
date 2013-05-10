@@ -15,6 +15,12 @@ repeatitive stanzas automatically so that you don't have to, including
 getting the current *backend pid* and opening a parallel `gdb` session
 attached to it.
 
+# pgdevenv
+
+The `pgdevenv` feature aims at providing shortcuts to use in a `M-x shell`
+session in order to help hacking PostgreSQL source code. It takes care of
+the most frequent commands you're going to be using.
+
 ## Usage
 
 Main shortcut:
@@ -101,3 +107,22 @@ If you want to have a try and tell me how it works for you, be my guest.
 
 Hope you enjoy! (Yes I know the audience is not huge.)
 
+# pgsql-minor-mode
+
+That's a minor mode offering support for some advanced SQL editing options:
+
+    C-M-a       pgsql-beginning-of-query
+    C-M-e       pgsql-end-of-query
+    C-M-h       pgsql-mark-query
+    C-M-x       pgsql-eval-query
+
+Equiped with that you can rejoice and use those shortcuts that work so well
+in other programming modes, particulary the lisp based ones.
+
+The evaluation of a query works by sending the query text to a buffer in
+which the `psql` interactive command is running, typically a `M-x shell`
+session prepared with the previous tools: `pgdevenv`. 
+
+The `C-M-x` shortcut when used for the first time in a SQL buffer will ask
+you which buffer to *send* the query in, providing you with `pgdevenv`
+environments auto completion.
