@@ -48,16 +48,19 @@ variables:
 
 ~~~lisp
 (defcustom pgdev-clone-root "~/dev/PostgreSQL"
-  "Top directory where to git clone the PostgreSQL development branches"
+  "Top directory where to `git clone` the PostgreSQL development branches"
   :group 'pgdev)
 
 (defcustom pgdev-install-root "~/pgsql"
-  "Top directory where to git clone the PostgreSQL development branches"
+  "Top directory where to `make install` the PostgreSQL development branches"
   :group 'pgdev)
 
-(defcustom pgdev-my-branches
-      '(("ddl" "postgres" "master" "54393"))
-  "Deveopper owned branches"
+(defcustom pgdev-my-git-url "https://github.com/dimitri/postgres.git"
+  "URL of the your own repository"
+  :group 'pgdev)
+
+(defcustom pgdev-pg-git-url "git://git.postgresql.org/git/postgresql.git"
+  "URL of the PostgreSQL upstream repository (or your mirror of it)"
   :group 'pgdev)
 
 (defcustom pgdev-pg-branches
@@ -69,8 +72,23 @@ variables:
   "NAME DIRECTORY TAG PORT"
   :group 'pgdev)
 
+(defcustom pgdev-my-branches
+      '(("ddl" "postgres" "master" "54393"))
+  "Deveopper owned branches"
+  :group 'pgdev)
+
 (defcustom pgdev-make-extra-options "-j 4"
   "Extra options to give make for"
+  :group 'pgdev)
+
+(defcustom pgdev-configure-option-list
+  '("--enable-cassert"
+    "--enable-debug"
+    "--enable-depend"
+    "--with-perl"
+    "--with-python"
+    "--with-tcl")
+  "PostgreSQL ./configure options, --prefix is automatically prepended"
   :group 'pgdev)
 ~~~
 

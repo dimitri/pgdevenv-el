@@ -44,11 +44,11 @@
   :group 'pgdev)
 
 (defcustom pgdev-clone-root "~/dev/PostgreSQL"
-  "Top directory where to git clone the PostgreSQL development branches"
+  "Top directory where to `git clone` the PostgreSQL development branches"
   :group 'pgdev)
 
 (defcustom pgdev-install-root "~/pgsql"
-  "Top directory where to git clone the PostgreSQL development branches"
+  "Top directory where to `make install` the PostgreSQL development branches"
   :group 'pgdev)
 
 (defcustom pgdev-logfile-root "/tmp"
