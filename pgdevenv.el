@@ -29,7 +29,7 @@
   "Local path leading to `gdb'"
   :group 'pgdev)
 
-(defcustom pgdev-make-extra-options "-j 4"
+(defcustom pgdev-make-extra-options "-s -j 4"
   "Extra options to give make for"
   :group 'pgdev)
 
@@ -49,6 +49,14 @@
 
 (defcustom pgdev-install-root "~/pgsql"
   "Top directory where to `make install` the PostgreSQL development branches"
+  :group 'pgdev)
+
+(defcustom pgdev-initdb-encoding "utf-8"
+  "PostgreSQL cluster encoding"
+  :group 'pgdev)
+
+(defcustom pgdev-initdb-locale "en_US"
+  "PostgreSQL cluster encoding"
   :group 'pgdev)
 
 (defcustom pgdev-logfile-root "/tmp"
@@ -254,7 +262,10 @@
 (defun pgdev-reinitdb ()
   "Execute rm -rf $PGDATA && initdb"
   (interactive)
-  (insert (format "rm -rf \"%s\" && initdb" pgdev-current-pgdata))
+  (insert (format "rm -rf \"%s\" && initdb -E \"%s\" --locale=\"%s\""
+                  pgdev-current-pgdata
+                  pgdev-initdb-encoding
+                  pgdev-initdb-locale))
   (comint-send-input nil t)
   (pgdev-insert-pgctl-start)
   (insert (format "sleep 2 && createdb %s" (user-login-name)))
